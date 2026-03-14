@@ -1,4 +1,7 @@
-body{
+/* =======================
+   Estilos generales
+======================= */
+body {
     background-color: #68686841;
 }
 
@@ -7,12 +10,12 @@ h1 {
     font-size: 45px;
 }
 
-h2{
-   text-align: center;
-   font-size: 35px; 
+h2 {
+    text-align: center;
+    font-size: 35px;
 }
 
-h4{
+h4 {
     text-align: center;
 }
 
@@ -20,6 +23,9 @@ h4{
     font-size: 25px;
 }
 
+/* =======================
+   Contenedor de productos
+======================= */
 #padre {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -27,13 +33,15 @@ h4{
     justify-content: center;
 }
 
+/* =======================
+   Tarjetas de productos
+======================= */
 .tarjeta {
-    background-color: #ffffff;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-self: center;
-    gap: 2px;
+    background-color: #ffffff;
     border: solid #000000 2px;
     border-radius: 10px;
     padding: 20px;
@@ -47,6 +55,10 @@ h4{
     height: 250px;
 }
 
+.tarjeta b{
+    margin-top: 10px;
+}
+
 .tarjeta button {
     background-color: #000000;
     color: #ffffff;
@@ -56,7 +68,10 @@ h4{
     border: solid white 1px;
 }
 
-#vaciar{
+/* =======================
+   Botones de carrito
+======================= */
+#vaciar {
     background-color: #000000;
     color: #ffffff;
     border-radius: 10px;
@@ -65,11 +80,112 @@ h4{
     margin-right: 7px;
 }
 
-#confirmar{
+#confirmar {
     background-color: #000000;
     color: #ffffff;
     border-radius: 10px;
     padding: 8px 16px;
     border: solid white 1px;
     margin-left: 7px;
+}
+
+/* =======================
+   Modal de compra finalizada
+======================= */
+#modalCompra {
+    display: none;
+    /* oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    display: flex;
+    /* flex para centrar el contenido */
+}
+
+#modalCompra .contenido {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+#modalCompra button {
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    border: solid white 1px;
+    margin-left: 7px;
+    cursor: pointer;
+}
+
+#modalCompra button:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    border: solid white 1px;
+    margin-left: 7px;
+}
+
+/* =======================
+   Card de inicio
+======================= */
+.card-inicio {
+    width: 300px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    margin: 50px auto;
+    /* centra horizontalmente */
+}
+
+.card-inicio h2 {
+    margin-bottom: 15px;
+}
+
+.card-inicio input {
+    width: 80%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.card-inicio button {
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    border: solid white 1px;
+    margin-left: 7px;
+    cursor: pointer;
+}
+
+.card-inicio button:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    border: solid white 1px;
+    margin-left: 7px;
+}
+
+/* =======================
+   Mensaje de error
+======================= */
+.mensaje-error {
+    color: red;
+    font-size: 14px;
+    margin: 8px 0;
 }
