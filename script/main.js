@@ -13,6 +13,11 @@ let productos = [];
 let dolar = 0;
 let monedaActual = localStorage.getItem("moneda") || "USD";
 
+// 🔥 DETECTAR BASE PATH (SOLUCIÓN REAL)
+const BASE_PATH = window.location.hostname.includes("github.io")
+  ? "/proyecto-js/"
+  : "/";
+
 // ---------------- API DOLAR ----------------
 
 async function obtenerDolar() {
@@ -30,7 +35,10 @@ async function obtenerDolar() {
 
 async function cargarProductos() {
   try {
-    const response = await fetch("productos.json");
+    const response = await fetch(`${BASE_PATH}productos.json`);
+
+    if (!response.ok) throw new Error("No se encontró el JSON");
+
     productos = await response.json();
   } catch (error) {
     console.error("Error cargando productos:", error);
@@ -116,7 +124,9 @@ function renderProductos() {
     nombre.innerText = producto.nombre;
 
     let img = document.createElement("img");
-    img.src = producto.img;
+
+    // 🔥 FIX IMÁGENES PARA GITHUB
+    img.src = BASE_PATH + producto.img;
     img.width = 150;
 
     let precio = document.createElement("b");
