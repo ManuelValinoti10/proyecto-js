@@ -13,7 +13,6 @@ let productos = [];
 let dolar = 0;
 let monedaActual = localStorage.getItem("moneda") || "USD";
 
-// 🔥 DETECTAR BASE PATH (SOLUCIÓN REAL)
 const BASE_PATH = window.location.hostname.includes("github.io")
   ? "/proyecto-js/"
   : "/";
@@ -125,7 +124,6 @@ function renderProductos() {
 
     let img = document.createElement("img");
 
-    // 🔥 FIX IMÁGENES PARA GITHUB
     img.src = BASE_PATH + producto.img;
     img.width = 150;
 
@@ -376,7 +374,6 @@ function confirmarCompra() {
     }
   }).then(result => {
     if (result.isConfirmed) {
-      // 🔥 Guardar compra
       const compra = {
         cliente: result.value,
         carrito,
