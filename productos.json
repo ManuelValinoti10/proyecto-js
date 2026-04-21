@@ -1,0 +1,6 @@
+[
+  { "id": 1, "nombre": "Iphone 14 Pro", "precio": 800, "img": "img/iphone-14.png" },
+  { "id": 2, "nombre": "Airpods 4ta Generacion", "precio": 130, "img": "img/airpods.jpeg" },
+  { "id": 3, "nombre": "Apple Watch SE", "precio": 400, "img": "img/applewatch.png" },
+  { "id": 4, "nombre": "MacBook Air M3", "precio": 1400, "img": "img/macprom3.png" }
+]

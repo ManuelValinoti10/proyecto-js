@@ -1,134 +1,49 @@
-/* // VARIABLE
-
-let producto;
-
-producto = "telefono";
-
-console.log(producto);
-
-let valorDelProducto;
-
-valorDelProducto = 98000;
-
-console.log(valorDelProducto);
-
-let stock = true;
-
-console.log(stock);
-
-
-//CICLO
-
-let conseñaCorrecta = "hola123";
-let contraseña;
-let acceso = false;
-
-for (let i = 0; i < 5; i++) {
-  contraseña = prompt("Ingresa tu contraseña");
-
-  if (contraseña === conseñaCorrecta) {
-    alert("Bienvenido!!");
-    acceso = true;
-    break;
-  } else if (i === 3) {
-    alert("Contraseña incorrecta, último intento.");
-  } else {
-    alert("Contraseña incorrecta.");
-  }
-}
-
-if (acceso === false) {
-  alert("Superaste el límite de intentos.");
-}
-
-//FUNCION
-
-
-function pedirPrecio() {
-    let precio = Number(prompt("Ingrese el precio"))
-    return precio;
-}
-
-function pedirDescuento() {
-    let descuento = Number(prompt("Ingrese el descuento"))
-    return descuento;
-}
-
-function calcularPrecioFinal(precio, descuento) {
-    return precio - descuento;
-}
-
-function mostrarPrecioFinal(total) {
-    alert("El precio final es: " + total);
-}
-
-let precio = pedirPrecio();
-let descuento = pedirDescuento()
-let total = calcularPrecioFinal(precio, descuento);
-mostrarPrecioFinal(total);
-
-
-//Funcion Flecha
-
-
-let suma = (a,b)=>a+b;
-
-console.log(suma(5,6));
-
-
-//Array
-
-
-let productos = ["Iphone","Apple Watch","MacBook"]
-productos.push("Air Pods");
-console.log (productos);
-
-console.log (productos[1]);
-
-
-const productos = ["Iphone","Apple Watch","MacBook"]
-
-for (let i=0;i<productos.length;i++) {
-  console.log(productos[i])
-
-} */
-
-//Entrega 1
-
+// ---------------- ELEMENTOS DOM ----------------
 
 let saludo = document.getElementById("saludo");
 let titulo = document.getElementById("titulo");
 let padre = document.getElementById("padre");
 let carritoTitulo = document.getElementById("carrito");
 
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+let productos = [];
+
+// ---------------- FETCH PRODUCTOS ----------------
+
+async function cargarProductos() {
+  try {
+    const response = await fetch("../productos.json");
+    productos = await response.json();
+  } catch (error) {
+    console.error("Error cargando productos:", error);
+  }
+}
+
+// ---------------- LOGIN ----------------
 
 let cardInicio = document.createElement("div");
 cardInicio.classList.add("card-inicio");
 
 let tituloCard = document.createElement("h2");
 tituloCard.innerText = "Iniciar sesión";
-cardInicio.appendChild(tituloCard);
 
 let inputNombre = document.createElement("input");
-inputNombre.setAttribute("placeholder", "Nombre de usuario");
-cardInicio.appendChild(inputNombre);
+inputNombre.placeholder = "Nombre de usuario";
 
 let mensajeError = document.createElement("p");
-mensajeError.classList.add("mensaje-error");
-mensajeError.innerText = "Ingresa tu nombre de usuario";
+mensajeError.innerText = "Ingresa tu nombre";
 mensajeError.style.display = "none";
-cardInicio.appendChild(mensajeError);
+mensajeError.classList.add("mensaje-error");
 
 let btnIniciar = document.createElement("button");
 btnIniciar.innerText = "Iniciar";
-cardInicio.appendChild(btnIniciar);
+btnIniciar.classList.add("btn");
 
+cardInicio.append(tituloCard, inputNombre, mensajeError, btnIniciar);
 saludo.appendChild(cardInicio);
 
-inputNombre.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    btnIniciar.click();
-  }
+inputNombre.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") btnIniciar.click();
 });
 
 inputNombre.addEventListener("input", () => {
@@ -137,119 +52,240 @@ inputNombre.addEventListener("input", () => {
   }
 });
 
-btnIniciar.addEventListener("click", () => {
+btnIniciar.addEventListener("click", iniciarApp);
+
+// ---------------- INICIAR APP ----------------
+
+async function iniciarApp() {
   let nombre = inputNombre.value.trim();
+
   if (!nombre) {
     mensajeError.style.display = "block";
     return;
   }
 
-  saludo.innerText = `Hola ${nombre}, bienvenid@ a nuestra tienda.`;
+  saludo.innerText = `Hola ${nombre}, bienvenid@ a la tienda`;
   cardInicio.style.display = "none";
   titulo.innerText = "Productos Apple";
 
-  let modal = document.createElement("div");
-  modal.setAttribute("id", "modalCompra");
-  modal.style.display = "none";
-  modal.innerHTML = `
-    <div class="contenido">
-      <h2>Compra finalizada</h2>
-      <div id="detallesCompra"></div>
-      <button id="cerrarModal">Cerrar</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
+  carritoTitulo.style.display = "block";
 
-  let productos = [
-    { id: 1, nombre: "Iphone 14 Pro", precio: 800, img: "img/iphone-14.png" },
-    { id: 2, nombre: "Airpods 4ta Generacion", precio: 130, img: "img/airpods.jpeg" },
-    { id: 3, nombre: "Apple Watch SE", precio: 400, img: "img/applewatch.png" },
-    { id: 4, nombre: "MacBook Air M3", precio: 1400, img: "img/macprom3.png" }
-  ];
+  await cargarProductos();
 
-  let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  renderProductos();
+  mostrarCarrito();
+}
 
-  function mostrarCarrito() {
-    carritoTitulo.innerHTML = "<b>Detalle de tu compra:</b><br><br>";
+// ---------------- PRODUCTOS ----------------
 
-    if (carrito.length === 0) {
-      carritoTitulo.innerHTML += "Tu carrito está vacío.";
-      return;
-    }
+function renderProductos() {
+  padre.innerHTML = "";
 
-    let subTotal = 0;
-    for (let item of carrito) {
-      let precioItem = item.precio * item.cantidad;
-      subTotal += precioItem;
-      carritoTitulo.innerHTML += `${item.nombre} x${item.cantidad} - $${precioItem}<br>`;
-    }
+  productos.forEach(producto => {
+    let tarjeta = document.createElement("div");
+    tarjeta.classList.add("tarjeta");
 
-    let iva = subTotal * 0.21;
-    let total = subTotal + iva;
-    carritoTitulo.innerHTML += `<br>-----------------<br>`;
-    carritoTitulo.innerHTML += `Subtotal: $${subTotal.toFixed(2)}<br>`;
-    carritoTitulo.innerHTML += `IVA (21%): $${iva.toFixed(2)}<br>`;
-    carritoTitulo.innerHTML += `<b>Total: $${total.toFixed(2)}</b><br><br>`;
-    carritoTitulo.innerHTML += `<button id="vaciar">Cancelar</button>`;
-    carritoTitulo.innerHTML += `<button id="confirmar">Confirmar</button>`;
+    let nombre = document.createElement("h3");
+    nombre.innerText = producto.nombre;
 
-    document.getElementById("vaciar").addEventListener("click", () => {
-      carrito = [];
-      localStorage.removeItem("carrito");
-      mostrarCarrito();
-    });
+    let img = document.createElement("img");
+    img.src = producto.img;
+    img.width = 150;
 
-    document.getElementById("confirmar").addEventListener("click", () => {
-      if (carrito.length === 0) return;
+    let precio = document.createElement("b");
+    precio.innerText = `$${producto.precio}`;
 
-      const pedidoConfirmado = { nombre: nombre, carrito: carrito };
-      localStorage.setItem("pedidoConfirmado", JSON.stringify(pedidoConfirmado));
+    let boton = document.createElement("button");
+    boton.innerText = "Agregar";
+    boton.classList.add("btn");
 
-      let detallesHTML = "";
-      let subTotalModal = 0;
-      for (let item of carrito) {
-        let precioItem = item.precio * item.cantidad;
-        subTotalModal += precioItem;
-        detallesHTML += `${item.nombre} x${item.cantidad} - $${precioItem}<br>`;
-      }
-      let ivaModal = subTotalModal * 0.21;
-      let totalModal = subTotalModal + ivaModal;
-      detallesHTML += `<br>-----------------<br>`;
-      detallesHTML += `Subtotal: $${subTotalModal.toFixed(2)}<br>`;
-      detallesHTML += `IVA (21%): $${ivaModal.toFixed(2)}<br>`;
-      detallesHTML += `<b>Total: $${totalModal.toFixed(2)}</b>`;
+    boton.addEventListener("click", () => agregarAlCarrito(producto));
 
-      document.getElementById("detallesCompra").innerHTML = detallesHTML;
-      modal.style.display = "flex";
+    tarjeta.append(nombre, img, precio, boton);
+    padre.appendChild(tarjeta);
+  });
+}
 
-      carrito = [];
-      localStorage.removeItem("carrito");
-      mostrarCarrito();
-    });
-  }
+// ---------------- CARRITO ----------------
 
-  for (const producto of productos) {
-    let stock = document.createElement("div");
-    stock.innerHTML = `<div class="tarjeta">
-      <h3>${producto.nombre}</h3>
-      <img src="${producto.img}" width="150">
-      <b>Precio: $${producto.precio}</b>
-      <button id="btn-${producto.id}">Añadir al carrito</button>
-    </div>`;
-    padre.appendChild(stock);
+function agregarAlCarrito(producto) {
+  let item = carrito.find(p => p.id === producto.id);
 
-    document.getElementById(`btn-${producto.id}`).addEventListener("click", () => {
-      let itemEnCarrito = carrito.find(p => p.id === producto.id);
-      if (itemEnCarrito) itemEnCarrito.cantidad += 1;
-      else carrito.push({ ...producto, cantidad: 1 });
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-      mostrarCarrito();
-    });
-  }
+  if (item) item.cantidad++;
+  else carrito.push({ ...producto, cantidad: 1 });
 
+  localStorage.setItem("carrito", JSON.stringify(carrito));
   mostrarCarrito();
 
-  document.getElementById("cerrarModal").addEventListener("click", () => {
-    modal.style.display = "none";
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    icon: "success",
+    title: "Producto agregado",
+    showConfirmButton: false,
+    timer: 1200
   });
-});
+}
+
+function aumentarCantidad(id) {
+  let item = carrito.find(p => p.id === id);
+  if (item) item.cantidad++;
+
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  mostrarCarrito();
+}
+
+function disminuirCantidad(id) {
+  let item = carrito.find(p => p.id === id);
+
+  if (item) {
+    item.cantidad--;
+
+    if (item.cantidad <= 0) {
+      carrito = carrito.filter(p => p.id !== id);
+    }
+  }
+
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  mostrarCarrito();
+}
+
+function eliminarProducto(id) {
+  carrito = carrito.filter(p => p.id !== id);
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  mostrarCarrito();
+}
+
+function mostrarCarrito() {
+  carritoTitulo.innerHTML = "<b>Detalle de tu compra:</b><br><br>";
+
+  if (carrito.length === 0) {
+    carritoTitulo.innerHTML += "Tu carrito está vacío";
+    return;
+  }
+
+  let subTotal = 0;
+
+  carrito.forEach(item => {
+    let contenedor = document.createElement("div");
+    contenedor.classList.add("item-carrito");
+
+    let nombre = document.createElement("p");
+    nombre.innerText = item.nombre;
+
+    let controles = document.createElement("div");
+    controles.classList.add("controles");
+
+    let btnMenos = document.createElement("button");
+    btnMenos.innerText = "➖";
+    btnMenos.classList.add("btn");
+    btnMenos.onclick = () => disminuirCantidad(item.id);
+
+    let cantidad = document.createElement("span");
+    cantidad.innerText = item.cantidad;
+
+    let btnMas = document.createElement("button");
+    btnMas.innerText = "➕";
+    btnMas.classList.add("btn");
+    btnMas.onclick = () => aumentarCantidad(item.id);
+
+    let btnEliminar = document.createElement("button");
+    btnEliminar.innerText = "❌";
+    btnEliminar.classList.add("btn");
+    btnEliminar.onclick = () => eliminarProducto(item.id);
+
+    controles.append(btnMenos, cantidad, btnMas, btnEliminar);
+
+    let precio = document.createElement("p");
+    let precioItem = item.precio * item.cantidad;
+    precio.innerText = `$${precioItem}`;
+
+    subTotal += precioItem;
+
+    contenedor.append(nombre, controles, precio);
+    carritoTitulo.appendChild(contenedor);
+  });
+
+  let iva = subTotal * 0.21;
+  let total = subTotal + iva;
+
+  let resumen = document.createElement("p");
+  resumen.innerHTML = `
+    -----------------<br>
+    Subtotal: $${subTotal.toFixed(2)}<br>
+    IVA: $${iva.toFixed(2)}<br>
+    <b>Total: $${total.toFixed(2)}</b><br><br>
+  `;
+
+  let btnVaciar = document.createElement("button");
+  btnVaciar.innerText = "Cancelar";
+  btnVaciar.classList.add("btn");
+
+  let btnConfirmar = document.createElement("button");
+  btnConfirmar.innerText = "Confirmar";
+  btnConfirmar.classList.add("btn");
+
+  btnVaciar.onclick = () => {
+    carrito = [];
+    localStorage.removeItem("carrito");
+    mostrarCarrito();
+  };
+
+  btnConfirmar.onclick = confirmarCompra;
+
+  let contenedorBotones = document.createElement("div");
+  contenedorBotones.classList.add("acciones-carrito");
+
+  contenedorBotones.append(btnVaciar, btnConfirmar);
+
+  carritoTitulo.append(resumen, contenedorBotones);
+}
+
+// ---------------- COMPRA ----------------
+
+function confirmarCompra() {
+  if (carrito.length === 0) return;
+
+  let total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  let iva = total * 0.21;
+  let final = total + iva;
+
+  Swal.fire({
+    title: "¿Confirmar compra?",
+    html: `
+    Subtotal: $${total.toFixed(2)}<br>
+    IVA: $${iva.toFixed(2)}<br>
+    <b>Total: $${final.toFixed(2)}</b>
+  `,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Comprar",
+    cancelButtonText: "Cancelar",
+
+
+    buttonsStyling: false,
+
+
+    customClass: {
+      confirmButton: "btn",
+      cancelButton: "btn"
+    }
+  }).then(result => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Compra finalizada!!",
+        icon: "success",
+        confirmButtonText: "OK",
+
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: "btn"
+        }
+      });
+
+      carrito = [];
+      localStorage.removeItem("carrito");
+      mostrarCarrito();
+    }
+  });
+}

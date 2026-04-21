@@ -1,8 +1,6 @@
-/* =======================
-   Estilos generales
-======================= */
 body {
     background-color: #68686841;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 h1 {
@@ -19,23 +17,13 @@ h4 {
     text-align: center;
 }
 
-#carrito b {
-    font-size: 25px;
-}
-
-/* =======================
-   Contenedor de productos
-======================= */
 #padre {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto;
-    justify-content: center;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
 }
 
-/* =======================
-   Tarjetas de productos
-======================= */
 .tarjeta {
     display: flex;
     flex-direction: column;
@@ -48,6 +36,11 @@ h4 {
     margin: 10px;
     width: 300px;
     height: 360px;
+    transition: all 0.2s ease;
+}
+
+.tarjeta:hover {
+    transform: scale(1.03);
 }
 
 .tarjeta img {
@@ -55,90 +48,10 @@ h4 {
     height: 250px;
 }
 
-.tarjeta b{
+.tarjeta b {
     margin-top: 10px;
 }
 
-.tarjeta button {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 6px 12px;
-    margin-top: 10px;
-    border: solid white 1px;
-}
-
-/* =======================
-   Botones de carrito
-======================= */
-#vaciar {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-right: 7px;
-}
-
-#confirmar {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-left: 7px;
-}
-
-/* =======================
-   Modal de compra finalizada
-======================= */
-#modalCompra {
-    display: none;
-    /* oculto por defecto */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    display: flex;
-    /* flex para centrar el contenido */
-}
-
-#modalCompra .contenido {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 300px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-#modalCompra button {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-left: 7px;
-    cursor: pointer;
-}
-
-#modalCompra button:hover {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-left: 7px;
-}
-
-/* =======================
-   Card de inicio
-======================= */
 .card-inicio {
     width: 300px;
     padding: 20px;
@@ -147,7 +60,6 @@ h4 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     text-align: center;
     margin: 50px auto;
-    /* centra horizontalmente */
 }
 
 .card-inicio h2 {
@@ -162,30 +74,108 @@ h4 {
     border-radius: 6px;
 }
 
-.card-inicio button {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-left: 7px;
-    cursor: pointer;
-}
-
-.card-inicio button:hover {
-    background-color: #000000;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 8px 16px;
-    border: solid white 1px;
-    margin-left: 7px;
-}
-
-/* =======================
-   Mensaje de error
-======================= */
 .mensaje-error {
     color: red;
     font-size: 14px;
     margin: 8px 0;
+}
+
+.btn {
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    border: solid white 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+#carrito {
+    display: none;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 350px;
+    margin: 20px auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#carrito b {
+    font-size: 25px;
+}
+
+.item-carrito {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.item-carrito p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.controles {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.controles span {
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+.controles .btn {
+    padding: 2px 5px;
+    font-size: 10px;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.acciones-carrito {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#modalCompra {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modalCompra .contenido {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.swal2-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
