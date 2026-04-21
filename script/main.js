@@ -30,7 +30,7 @@ async function obtenerDolar() {
 
 async function cargarProductos() {
   try {
-    const response = await fetch("./productos.json");
+    const response = await fetch("./proyecto-js/productos.json");
     productos = await response.json();
   } catch (error) {
     console.error("Error cargando productos:", error);
