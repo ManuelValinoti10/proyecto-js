@@ -5,14 +5,32 @@ let titulo = document.getElementById("titulo");
 let padre = document.getElementById("padre");
 let carritoTitulo = document.getElementById("carrito");
 
+let btnMoneda;
+
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productos = [];
+
+let dolar = 0;
+let monedaActual = localStorage.getItem("moneda") || "USD";
+
+// ---------------- API DOLAR ----------------
+
+async function obtenerDolar() {
+  try {
+    const resp = await fetch("https://dolarapi.com/v1/dolares/oficial");
+    const data = await resp.json();
+    return data.venta;
+  } catch (error) {
+    console.error("Error con API dólar:", error);
+    return 1;
+  }
+}
 
 // ---------------- FETCH PRODUCTOS ----------------
 
 async function cargarProductos() {
   try {
-    const response = await fetch("../productos.json");
+    const response = await fetch("./productos.json");
     productos = await response.json();
   } catch (error) {
     console.error("Error cargando productos:", error);
@@ -70,7 +88,16 @@ async function iniciarApp() {
 
   carritoTitulo.style.display = "block";
 
+  btnMoneda = document.getElementById("toggleMoneda");
+  btnMoneda.style.display = "inline-block";
+
+  dolar = await obtenerDolar();
   await cargarProductos();
+
+  btnMoneda.innerText =
+    monedaActual === "USD"
+      ? "Mostrar en ARS"
+      : "Mostrar en USD";
 
   renderProductos();
   mostrarCarrito();
@@ -93,7 +120,12 @@ function renderProductos() {
     img.width = 150;
 
     let precio = document.createElement("b");
-    precio.innerText = `$${producto.precio}`;
+
+    if (monedaActual === "USD") {
+      precio.innerText = `$${producto.precio} USD`;
+    } else {
+      precio.innerText = `$${(producto.precio * dolar).toFixed(0)} ARS`;
+    }
 
     let boton = document.createElement("button");
     boton.innerText = "Agregar";
@@ -198,7 +230,12 @@ function mostrarCarrito() {
 
     let precio = document.createElement("p");
     let precioItem = item.precio * item.cantidad;
-    precio.innerText = `$${precioItem}`;
+
+    if (monedaActual === "USD") {
+      precio.innerText = `$${precioItem} USD`;
+    } else {
+      precio.innerText = `$${(precioItem * dolar).toFixed(0)} ARS`;
+    }
 
     subTotal += precioItem;
 
@@ -210,12 +247,22 @@ function mostrarCarrito() {
   let total = subTotal + iva;
 
   let resumen = document.createElement("p");
-  resumen.innerHTML = `
-    -----------------<br>
-    Subtotal: $${subTotal.toFixed(2)}<br>
-    IVA: $${iva.toFixed(2)}<br>
-    <b>Total: $${total.toFixed(2)}</b><br><br>
-  `;
+
+  if (monedaActual === "USD") {
+    resumen.innerHTML = `
+      -----------------<br>
+      Subtotal: $${subTotal.toFixed(2)} USD<br>
+      IVA: $${iva.toFixed(2)} USD<br>
+      <b>Total: $${total.toFixed(2)} USD</b><br><br>
+    `;
+  } else {
+    resumen.innerHTML = `
+      -----------------<br>
+      Subtotal: $${(subTotal * dolar).toFixed(0)} ARS<br>
+      IVA: $${(iva * dolar).toFixed(0)} ARS<br>
+      <b>Total: $${(total * dolar).toFixed(0)} ARS</b><br><br>
+    `;
+  }
 
   let btnVaciar = document.createElement("button");
   btnVaciar.innerText = "Cancelar";
@@ -241,7 +288,7 @@ function mostrarCarrito() {
   carritoTitulo.append(resumen, contenedorBotones);
 }
 
-// ---------------- COMPRA ----------------
+// ---------------- COMPRA CON FORMULARIO ----------------
 
 function confirmarCompra() {
   if (carrito.length === 0) return;
@@ -250,33 +297,91 @@ function confirmarCompra() {
   let iva = total * 0.21;
   let final = total + iva;
 
+  if (monedaActual !== "USD") {
+    total *= dolar;
+    iva *= dolar;
+    final *= dolar;
+  }
+
   Swal.fire({
-    title: "¿Confirmar compra?",
+    title: "Datos de compra",
     html: `
-    Subtotal: $${total.toFixed(2)}<br>
-    IVA: $${iva.toFixed(2)}<br>
-    <b>Total: $${final.toFixed(2)}</b>
-  `,
-    icon: "question",
+      <input id="nombreCliente" class="swal2-input" placeholder="Nombre completo">
+      <input id="emailCliente" class="swal2-input" placeholder="Email">
+
+      <select id="metodoPago" class="swal2-input">
+        <option value="">Forma de pago</option>
+        <option value="efectivo">Efectivo</option>
+        <option value="transferencia">Transferencia</option>
+        <option value="tarjeta">Tarjeta</option>
+      </select>
+
+      <div id="datosTarjeta" style="display:none;">
+        <input id="numeroTarjeta" class="swal2-input" placeholder="Número de tarjeta">
+        <input id="nombreTarjeta" class="swal2-input" placeholder="Titular">
+        <input id="vencimiento" class="swal2-input" placeholder="MM/AA">
+        <input id="cvv" class="swal2-input" placeholder="CVV">
+      </div>
+
+      <br>
+      <b>Total: $${monedaActual === "USD" ? final.toFixed(2) : final.toFixed(0)} ${monedaActual}</b>
+    `,
     showCancelButton: true,
-    confirmButtonText: "Comprar",
-    cancelButtonText: "Cancelar",
+    confirmButtonText: "Finalizar",
+    didOpen: () => {
+      const metodo = document.getElementById("metodoPago");
+      const tarjetaDiv = document.getElementById("datosTarjeta");
 
+      metodo.addEventListener("change", () => {
+        tarjetaDiv.style.display = metodo.value === "tarjeta" ? "block" : "none";
+      });
+    },
+    preConfirm: () => {
+      const nombre = document.getElementById("nombreCliente").value;
+      const email = document.getElementById("emailCliente").value;
+      const metodo = document.getElementById("metodoPago").value;
 
-    buttonsStyling: false,
+      if (!nombre || !email || !metodo) {
+        Swal.showValidationMessage("Completá todos los campos");
+        return false;
+      }
 
+      let datosTarjeta = null;
 
-    customClass: {
-      confirmButton: "btn",
-      cancelButton: "btn"
+      if (metodo === "tarjeta") {
+        const numero = document.getElementById("numeroTarjeta").value;
+        const titular = document.getElementById("nombreTarjeta").value;
+        const venc = document.getElementById("vencimiento").value;
+        const cvv = document.getElementById("cvv").value;
+
+        if (!numero || !titular || !venc || !cvv) {
+          Swal.showValidationMessage("Completá los datos de la tarjeta");
+          return false;
+        }
+
+        datosTarjeta = { numero, titular, venc, cvv };
+      }
+
+      return { nombre, email, metodo, datosTarjeta };
     }
   }).then(result => {
     if (result.isConfirmed) {
+      // 🔥 Guardar compra
+      const compra = {
+        cliente: result.value,
+        carrito,
+        moneda: monedaActual,
+        total: final,
+        fecha: new Date().toLocaleString()
+      };
+
+      localStorage.setItem("ultimaCompra", JSON.stringify(compra));
+
       Swal.fire({
-        title: "Compra finalizada!!",
+        title: "Compra finalizada 🎉",
+        text: "Gracias por tu compra",
         icon: "success",
         confirmButtonText: "OK",
-
         buttonsStyling: false,
         customClass: {
           confirmButton: "btn"
@@ -289,3 +394,19 @@ function confirmarCompra() {
     }
   });
 }
+
+// ---------------- TOGGLE MONEDA ----------------
+
+document.getElementById("toggleMoneda").addEventListener("click", () => {
+  monedaActual = monedaActual === "USD" ? "ARS" : "USD";
+
+  localStorage.setItem("moneda", monedaActual);
+
+  btnMoneda.innerText =
+    monedaActual === "USD"
+      ? "Mostrar en ARS"
+      : "Mostrar en USD";
+
+  renderProductos();
+  mostrarCarrito();
+});

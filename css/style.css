@@ -179,3 +179,31 @@ h4 {
     justify-content: center;
     gap: 10px;
 }
+
+#toggleMoneda {
+    display: none;
+    margin: 10px auto;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    padding: 8px 16px !important;
+    border: solid white 1px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-confirm:hover,
+.swal2-cancel:hover {
+    transform: scale(1.05);
+}
+
+.swal2-input {
+    border-radius: 6px !important;
+    border: 1px solid #ccc !important;
+    padding: 8px !important;
+    width: 80% !important;
+}
